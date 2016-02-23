@@ -1,4 +1,4 @@
-# cfd blackjack initial test
+# cfd blackjack base classes
 
 # library imports
 
@@ -25,6 +25,15 @@ class Deck(object):
     def deal(self):
         self.num_cards_left -= 1
         return self.cards.pop()
+        
+# create score dictionary to evaluate hand scores
+
+score_dict = {}
+for card in xrange(2,11):
+    score_dict[str(card)] = card
+for card in ['J','Q','K']:
+    score_dict[card] = 10
+score_dict['A'] = [1,11]
    
 # hand class
          
@@ -32,12 +41,6 @@ class Hand(object):
 
     def __init__(self, cards=[]):
         self.cards = cards
-        self.score_dict = {}
-        for card in xrange(2,11):
-            self.score_dict[str(card)] = card
-        for card in ['J','Q','K']:
-            self.score_dict[card] = 10
-        self.score_dict['A'] = [1,11]
         
     def add_card(self, card):
         self.cards.append(card)
@@ -45,7 +48,7 @@ class Hand(object):
     def score(self):
         hand_score = 0
         for card in self.cards:
-            card_score = self.score_dict[card]
+            card_score = score_dict[card]
             if card == 'A':
                 try:
                     hand_score = [x+hand_score for x in card_score]

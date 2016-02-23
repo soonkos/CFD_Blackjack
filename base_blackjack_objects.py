@@ -68,3 +68,33 @@ class Hand(object):
                         hand_score.append(card_score+temp_score)
                         list(set(hand_score))
         return hand_score
+   
+# dealer player class
+    
+class DealerPlayer(object):
+    
+    def __init__(self, name='Dealer'):
+        self.name = name
+          
+    def play(self, current_hand):
+        current_score = current_hand.score()
+
+        try : # this section is designed for list scores          
+ 
+            # check for must-stand scores
+            
+            for score in current_score:
+                if score > 17 and score <= 21:
+                    return 'stand'
+
+            # if we made it here, then dealer must hit
+
+            return 'hit'
+            
+        except (TypeError): # scalar current_scores go here
+        
+            if current_score > 17:
+                return 'stand'
+            else:
+                return 'hit'
+        

@@ -35,6 +35,8 @@ for card in ['J','Q','K']:
     score_dict[card] = 10
 score_dict['A'] = [1,11]
 
+# create set of blackjack hands to check against
+
 blackjack_hands = set()
 for c in ['10','J','Q','K']:
     blackjack_hands.add((c,'A'))
@@ -82,35 +84,5 @@ class Hand(object):
                         list(set(hand_score))
         return hand_score
    
-# dealer player class
-    
-class DealerPlayer(object):
-    
-    def __init__(self, name='Dealer'):
-        self.name = name
-          
-    def play(self, current_hand):
-        current_score = current_hand.score()
-        
-        if current_score == 'blackjack':
-            return 'blackjack'
 
-        try : # this section is designed for list scores          
- 
-            # check for must-stand scores
-            
-            for score in current_score:
-                if score > 17 and score <= 21:
-                    return 'stand'
-
-            # if we made it here, then dealer must hit
-
-            return 'hit'
-            
-        except (TypeError): # scalar current_scores go here
-        
-            if current_score > 17:
-                return 'stand'
-            else:
-                return 'hit'
         

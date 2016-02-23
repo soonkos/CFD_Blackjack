@@ -34,6 +34,11 @@ for card in xrange(2,11):
 for card in ['J','Q','K']:
     score_dict[card] = 10
 score_dict['A'] = [1,11]
+
+blackjack_hands = set()
+for c in ['10','J','Q','K']:
+    blackjack_hands.add((c,'A'))
+    blackjack_hands.add(('A',c))
    
 # hand class
          
@@ -46,6 +51,14 @@ class Hand(object):
         self.cards.append(card)
         
     def score(self):
+        
+        # first check for blackjack hands
+        
+        if tuple(self.cards) in blackjack_hands:
+            return 'blackjack'
+
+        # if not, work out numeric hand score
+
         hand_score = 0
         for card in self.cards:
             card_score = score_dict[card]
@@ -78,6 +91,9 @@ class DealerPlayer(object):
           
     def play(self, current_hand):
         current_score = current_hand.score()
+        
+        if current_score == 'blackjack':
+            return 'blackjack'
 
         try : # this section is designed for list scores          
  

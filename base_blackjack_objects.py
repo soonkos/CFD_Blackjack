@@ -58,7 +58,7 @@ class Hand(object):
     def add_card(self, card):
         self.cards.append(card)
         
-    def score(self):
+    def possible_scores(self):
         
         # first check for blackjack hands
         
@@ -67,28 +67,39 @@ class Hand(object):
 
         # if not, work out numeric hand score
 
-        hand_score = 0
+        hand_score = [0]
         for card in self.cards:
             card_score = score_dict[card]
             if card == 'A':
-                try:
-                    hand_score = [x+hand_score for x in card_score]
-                except (TypeError):
-                    temp = hand_score[:]
-                    hand_score = []
-                    for temp_score in temp:
-                        hand_score += [x+temp_score for x in card_score]
-                    hand_score = list(set(hand_score))
+                temp = hand_score[:]
+                hand_score = []
+                for temp_score in temp:
+                    hand_score += [x+temp_score for x in card_score]
+                new_hand_score = list(set(hand_score))
             else:
-                try:
-                    hand_score += card_score
-                except (TypeError):
-                    temp = hand_score[:]
-                    hand_score = []
-                    for temp_score in temp:
-                        hand_score.append(card_score+temp_score)
-                        list(set(hand_score))
+                new_hand_score = [x+card_score for x in hand_score]
+            hand_score = new_hand_score[:]
+
         return hand_score
    
-
+    def best_score(self):
+        
+        # first get possible scores
+        
+        possible_scores = self.possible_scores()
+        
+        # check for blackjack
+        
+        if possible_scores == 'blackjack':
+            return 'blackjack'
+            
+        # otherwise, find maximum score less than or equal to 21
+            
+        valid_scores = [x for x in possible_scores if x <= 21]
+        if valid_scores:
+            best_score = max(valid_scores)
+        else:
+            best_score = 'bust'
+        
+        return best_score
         

@@ -11,11 +11,7 @@ class ProtoPlayer(object):
         return table_min
     
     def play(self, current_hand, current_table):
-        current_score = current_hand.score()
-        if current_score == 'blackjack':
-            return 'blackjack'
-        else:
-            return 'stand'
+        return 'stand'
         
 # dealer player class
     
@@ -25,27 +21,17 @@ class DealerRulesPlayer(ProtoPlayer):
         self.name = name
           
     def play(self, current_hand, current_table):
-        current_score = current_hand.score()
+        possible_scores = current_hand.possible_scores()
         
-        if current_score == 'blackjack':
-            return 'blackjack'
+        if possible_scores == 'blackjack':
+            return 'stand'
 
-        try : # this section is designed for list scores          
- 
-            # check for must-stand scores
+        # check for must-stand scores
             
-            for score in current_score:
-                if score > 17 and score <= 21:
-                    return 'stand'
-
-            # if we made it here, then dealer must hit
-
-            return 'hit'
-            
-        except (TypeError): # scalar current_scores go here
-        
-            if current_score > 17:
+        for score in possible_scores:
+            if 17 < score and score <= 21:
                 return 'stand'
-            else:
-                return 'hit'
 
+        # if we made it here, then dealer must hit
+
+        return 'hit'

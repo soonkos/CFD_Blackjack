@@ -14,9 +14,10 @@ dealer_player = bj_player.DealerRulesPlayer()
 # create the players
 
 player1 = bj_player.ProtoPlayer(name='Steve')
-player2 = bj_player.ProtoPlayer(name='Bob')
-player3 = bj_player.DealerRulesPlayer(name='Jenny')
-player_list = [player1, player2, player3]
+player2 = bj_player.ProtoPlayer(name='Jenny')
+player3 = bj_player.DealerRulesPlayer(name='David')
+player4 = bj_player.DealerRulesPlayer(name='Lauren')
+player_list = [player1, player2, player3, player4]
 
 # set table minimums and maximums
 
@@ -53,18 +54,26 @@ for cnum in xrange(2):
 
 # players gonna play
 
-player_scores = dict()
+player_starting_hand_cards = dict()
+for player in player_list:
+    player_starting_hand_cards[player.name] = player_hands[player.name].cards[:]
+
+player_possible_scores = dict()
+player_best_scores = dict()
 for player in player_list:
     name = player.name
     hand = player_hands[name]
-    score = hand.score()
+    scores = hand.possible_scores()
     play = ''
-    while score != 'blackjack' and any([score]) <= 21 and play != 'stand':
+    while scores != 'blackjack' \
+          and any(x <= 21 for x in scores) \
+          and play != 'stand':
         play = player.play(hand,player_hands)
         if play == 'hit':
             hand.add_card(deck.deal())
-        score = hand.score()
-    player_scores[name] = score
+        scores = hand.possible_scores()
+    player_possible_scores[name] = scores
+    player_best_scores[name] = hand.best_score()
 
 player_hand_cards = dict()
 for player in player_list:
@@ -73,21 +82,44 @@ for player in player_list:
 # dealer plays
 
 dealer_hand = bj.Hand([dealer_card,dealer_hidden_card])
-score = dealer_hand.score()
+scores = dealer_hand.possible_scores()
 play = ''
-while score != 'blackjack' and any([score]) <= 21 and play != 'stand':
+while scores != 'blackjack' \
+      and any(x <= 21 for x in scores) \
+      and play != 'stand':
     play = dealer_player.play(dealer_hand,player_hands)
     if play == 'hit':
         dealer_hand.add_card(deck.deal())
-    score = dealer_hand.score()
+    scores = dealer_hand.possible_scores()
+    
 dealer_hand_cards = dealer_hand.cards
+dealer_possible_scores = dealer_hand.possible_scores()
     
 # figure out if players won or lost
 
-dealer_score = dealer_hand.score()
-#if dealer_score != 'blackjack':
-#    temp_score_list = [x for x in dealer_hand.score() if x <=21]
-#    dealer_score = max(temp_score_list)
-#    
+dealer_score = dealer_hand.best_score()
+for player in player_list:
+    name = player.name
+    hand = player_hands[name]
+    score = hand.best_score()
+    bet = player_bets[name]
+    if score == 'blackjack':
+        player_funds[name] += 1.5*bet
+    elif score == 'bust':
+        player_funds[name] -= bet
+    else:
+        if dealer_score == 'blackjack':
+            player_funds[name] -= bet
+        elif dealer_score == 'bust':
+            player_funds[name] += bet
+        else:
+            if score > dealer_score:
+                player_funds[name] += bet
+            elif score < dealer_score:
+                player_funds[name] -= bet
+            else:
+                pass
+
+
 
 

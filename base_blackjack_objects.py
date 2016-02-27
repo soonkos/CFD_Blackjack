@@ -9,7 +9,7 @@ from random import shuffle
 class Deck(object):
     
     def __init__(self, num_decks=4):
-        self.newcards(num_decks)
+        self.new_cards(num_decks)
         self.shuffle()
 
     def new_cards(self, num_decks=4):
@@ -24,6 +24,9 @@ class Deck(object):
 
     def deal(self):
         self.num_cards_left -= 1
+        if self.num_cards_left == 0:
+            self.new_cards()
+            self.shuffle()
         return self.cards.pop()
         
 # create score dictionary to evaluate hand scores
@@ -46,8 +49,11 @@ for c in ['10','J','Q','K']:
          
 class Hand(object):     
 
-    def __init__(self, cards=[]):
-        self.cards = cards
+    def __init__(self, cards=None):
+        if cards:
+            self.cards = cards
+        else:
+            self.cards = []
         
     def add_card(self, card):
         self.cards.append(card)
@@ -68,7 +74,7 @@ class Hand(object):
                 try:
                     hand_score = [x+hand_score for x in card_score]
                 except (TypeError):
-                    temp = hand_score
+                    temp = hand_score[:]
                     hand_score = []
                     for temp_score in temp:
                         hand_score += [x+temp_score for x in card_score]
@@ -77,7 +83,7 @@ class Hand(object):
                 try:
                     hand_score += card_score
                 except (TypeError):
-                    temp = hand_score
+                    temp = hand_score[:]
                     hand_score = []
                     for temp_score in temp:
                         hand_score.append(card_score+temp_score)

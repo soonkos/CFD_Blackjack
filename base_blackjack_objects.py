@@ -3,6 +3,7 @@
 # library imports
 
 from random import shuffle
+import base_player_objects as bj_player
 
 # deck class
 
@@ -102,4 +103,140 @@ class Hand(object):
             best_score = 'bust'
         
         return best_score
+        
+class Game(object):
+    
+    def __init__(self, player_list, \
+                 table_minimum, table_maximum, starting_funds):
+        self.player_list = player_list
+        self.table_min = table_minimum
+        self.table_max = table_maximum
+        self.start_funds = starting_funds
+        
+        # get the starting deck
+        
+        self.deck = Deck()
+        
+        # create the dealer player
+        
+        self.dealer_player = bj_player.DealerRulesPlayer()
+        
+        # give each player some initial cash
+
+        self.player_funds = dict()
+        for player in player_list:
+            self.player_funds[player.name] = self.start_funds
+            
+    def ask_for_bets(self):
+
+        self.player_bets = dict()
+        for player in self.player_list:
+            current_funds = self.player_funds[player.name]
+            bet = player.bet(current_funds, self.table_min, self.table_max)  
+            self.player_bets[player.name] = bet
+                      
+    def deal_starting_cards(self):
+        
+        # create hand dictionary
+
+        self.player_hands = dict()
+        for player in self.player_list:
+            self.player_hands[player.name] = Hand()
+            
+        # deal out cards
+
+        for card_num in xrange(2):
+            for name, hand in self.player_hands.iteritems():
+                hand.add_card(self.deck.deal())
+            if card_num == 1:
+                self.dealer_card = self.deck.deal()
+            else:
+                self.dealer_hidden_card = self.deck.deal()
+        
+        # create table dictionary showing all cards
+        
+        self.table = dict()
+        self.table['Dealer'] = (self.dealer_card,)
+        for player in self.player_list:
+            hand = self.player_hands[player.name]
+            self.table[player.name] = tuple(hand.cards)
+            
+    def play_hand(self, player):
+        
+        # have player play out their hand
+        
+        name = player.name
+        hand = self.player_hands[name]
+        scores = hand.possible_scores()
+        play = ''
+        while scores != 'blackjack' \
+              and any(x <= 21 for x in scores) \
+              and play != 'stand':
+            play = player.play(hand,self.table)
+            if play == 'hit':
+                hand.add_card(self.deck.deal())
+            scores = hand.possible_scores()
+        
+        # update table
+               
+        self.table[player.name] = tuple(hand.cards)
+        
+    def dealer_play_hand(self):
+        
+        # create dealer hand
+        
+        self.dealer_hand = Hand([self.dealer_card,self.dealer_hidden_card])
+        
+        # play out hand
+        
+        scores = self.dealer_hand.possible_scores()
+        play = ''
+        while scores != 'blackjack' \
+              and any(x <= 21 for x in scores) \
+              and play != 'stand':
+            play = self.dealer_player.play(self.dealer_hand,self.table)
+            if play == 'hit':
+                self.dealer_hand.add_card(self.deck.deal())
+            scores = self.dealer_hand.possible_scores()
+         
+        # update table
+         
+        self.table['Dealer'] = tuple(self.dealer_hand.cards)
+        
+    def settle_bets(self):
+        
+        # figure out if players won or lost
+        
+        dealer_score = self.dealer_hand.best_score()
+        for player in self.player_list:
+            name = player.name
+            hand = self.player_hands[name]
+            score = hand.best_score()
+            bet = self.player_bets[name]
+            if score == 'blackjack':
+                self.player_funds[name] += 1.5*bet
+            elif score == 'bust':
+                self.player_funds[name] -= bet
+            else:
+                if dealer_score == 'blackjack':
+                    self.player_funds[name] -= bet
+                elif dealer_score == 'bust':
+                    self.player_funds[name] += bet
+                else:
+                    if score > dealer_score:
+                        self.player_funds[name] += bet
+                    elif score < dealer_score:
+                        self.player_funds[name] -= bet
+                    else:
+                        pass
+        
+    def final_look_at_table(self):
+        
+        for player in self.player_list:
+            player.final_look(self.table)
+    
+    
+        
+        
+        
         

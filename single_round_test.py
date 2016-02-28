@@ -1,7 +1,7 @@
 # try to create a basic blackjack game
 
-import base_blackjack_objects as bj
-import base_player_objects as bj_player
+import blackjack_base as bj
+import blackjack_base_players as bj_player
 
 # create the players
 

@@ -21,7 +21,7 @@ class ProtoPlayer(object):
 class DealerRulesPlayer(ProtoPlayer):
 
     def __init__(self, name='Dealer'):
-        ProtoPlayer.__init__(name)
+        ProtoPlayer.__init__(self, name)
 
     def play(self, current_hand, current_table):
         possible_scores = current_hand.possible_scores()

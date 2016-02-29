@@ -118,6 +118,8 @@ class Game(object):
 
         self.player_hands = dict()
         self.player_bets = dict()
+        self.player_rounds_played = dict()
+        self.round_counter = 0
         self.table = dict()
         self.dealer_card = ''
         self.dealer_hidden_card = ''
@@ -139,10 +141,24 @@ class Game(object):
 
     def ask_for_bets(self):
 
+        self.round_counter += 1
+        
         for player in self.player_list:
             current_funds = self.player_funds[player.name]
             bet = player.bet(current_funds, self.table_min, self.table_max)
-            self.player_bets[player.name] = bet
+            if bet < self.table_min and self.table_min < current_funds:
+                self.player_bets[player.name] = self.table_min
+            elif bet < self.table_min and self.table_min > current_funds:
+                self.player_bets[player.name] = current_funds
+            elif bet > self.table_max and self.table_max < current_funds:
+                self.player_bets[player.name] = self.table_max
+            elif bet > self.table_max and self.table_max > current_funds:
+                self.player_bets[player.name] = current_funds
+            elif bet > current_funds:
+                self.player_bets[player.name] = current_funds
+            else:
+                self.player_bets[player.name] = bet
+                
 
     def deal_starting_cards(self):
 
@@ -182,6 +198,8 @@ class Game(object):
             play = player.play(hand, self.table)
             if play == 'hit':
                 hand.add_card(self.deck.deal())
+            else:
+                play = 'stand'
             scores = hand.possible_scores()
 
         # update table
@@ -204,6 +222,8 @@ class Game(object):
             play = self.dealer_player.play(self.dealer_hand, self.table)
             if play == 'hit':
                 self.dealer_hand.add_card(self.deck.deal())
+            else:
+                play = 'stand'
             scores = self.dealer_hand.possible_scores()
 
         # update table
@@ -221,21 +241,32 @@ class Game(object):
             score = hand.best_score()
             bet = self.player_bets[name]
             if score == 'blackjack':
-                self.player_funds[name] += 1.5*bet
+                if dealer_score == 'blackjack':
+                    pass  # push
+                else:
+                    self.player_funds[name] += 1.5*bet  # win
             elif score == 'bust':
-                self.player_funds[name] -= bet
+                self.player_funds[name] -= bet  # lose
             else:
                 if dealer_score == 'blackjack':
-                    self.player_funds[name] -= bet
+                    self.player_funds[name] -= bet  # lose
                 elif dealer_score == 'bust':
-                    self.player_funds[name] += bet
+                    self.player_funds[name] += bet  # win
                 else:
                     if score > dealer_score:
-                        self.player_funds[name] += bet
+                        self.player_funds[name] += bet  # win
                     elif score < dealer_score:
-                        self.player_funds[name] -= bet
+                        self.player_funds[name] -= bet  # lose
                     else:
-                        pass
+                        pass  # push
+            
+            # if player has lost all funds, remove them from play
+            
+            if self.player_funds[name] <= 0.0:
+                self.player_rounds_played[name] = self.round_counter
+                new_player_list = [x for x in self.player_list \
+                                   if x is not player]
+                self.player_list = new_player_list
 
     def final_look_at_table(self):
 

@@ -7,13 +7,13 @@ class ProtoPlayer(object):
     def __init__(self, name='Proto'):
         self.name = name
 
-    def bet(self, current_funds, table_min, table_max):
-        return table_min
+    def bet(self, current_funds, minimum_bet, maximum_bet):
+        return minimum_bet
 
     def play(self, current_hand, current_table):
         return 'stand'
 
-    def final_look(self, current_table):
+    def final_look(self, final_table):
         pass
 
 # dealer player class

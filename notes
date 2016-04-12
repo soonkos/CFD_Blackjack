@@ -1,4 +1,5 @@
-forked CFD_Blackjack
+forked CFD_Blackjack at github
+on local machine: cd c:/users/putnam, then git clone https://github.com/soonkos/CFD_Blackjack
 
 git pull origin
 git add .

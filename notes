@@ -1,3 +1,5 @@
+forked CFD_Blackjack
+
 git pull origin
 git add .
 git commit -m 'some documentation for what i am doing'

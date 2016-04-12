@@ -1,0 +1,6 @@
+git pull origin
+git add .
+git commit -m 'some documentation for what i am doing'
+git status
+git log --oneline
+git push origin

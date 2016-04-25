@@ -1,8 +1,10 @@
 forked CFD_Blackjack at github
-on local machine: cd c:/users/putnam, then git clone https://github.com/soonkos/CFD_Blackjack
+then, on local machine in git bash shell: 
+  cd c:/users/putnam,
+  git clone https://github.com/soonkos/CFD_Blackjack
 
-git pull origin
-git add .
+git pull origin # get latest
+git add . # follow all stuff in current directory
 git commit -m 'some documentation for what i am doing'
 git status
 git log --oneline
